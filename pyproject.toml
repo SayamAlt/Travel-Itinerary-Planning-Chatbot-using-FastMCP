@@ -19,3 +19,6 @@ dependencies = [
     "langchain-mcp-adapters",
     "langchain-core"
 ]
+
+[tool.poetry]
+package-mode = false
