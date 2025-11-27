@@ -19,7 +19,8 @@ dependencies = [
     "langchain-mcp-adapters",
     "langchain-core",
     "ddgs",
-    "watchdog"
+    "watchdog",
+    "amadeus"
 ]
 
 [tool.poetry]
