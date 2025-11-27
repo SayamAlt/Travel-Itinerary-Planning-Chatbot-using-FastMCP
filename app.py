@@ -80,7 +80,7 @@ if user_input:
     
     # Submit async task to chatbot
     with st.chat_message("assistant"):
-        status_holder = {"box": None}  # For tool progress display
+        status_holder = {"box": None, "used_tools": []}  # For tool progress display
         
         def ai_only_stream():
             event_queue: queue.Queue = queue.Queue()
@@ -98,8 +98,9 @@ if user_input:
                 finally:
                     event_queue.put(None)
 
-            submit_async_task(run_stream())
+            submit_async_task(run_stream()) # submit the backend coroutine
             
+            # Stream AI messages
             while True:
                 item = event_queue.get()
                 if item is None:
@@ -112,8 +113,13 @@ if user_input:
 
                 # Update tool status if applicable
                 if isinstance(message_chunk, ToolMessage):
-                    tool_name = getattr(message_chunk, "name", "tool")
+                    tool_name = getattr(message_chunk, "name", None) or getattr(metadata, "tool_name", None) or "tool"
                     
+                    # Add tool name to list of used tools
+                    if tool_name not in status_holder["used_tools"]:
+                        status_holder["used_tools"].append(tool_name)
+                        
+                    # Update tool status
                     if status_holder["box"] is None:
                         status_holder["box"] = st.status(
                             f"🛠️ Running tool: {tool_name}...", expanded=True
@@ -131,7 +137,11 @@ if user_input:
           
         # Update tool status only if any tool was actually used
         if status_holder["box"] is not None:
-            status_holder["box"].update(label="✅ Tool finished", state="complete", expanded=False)
+            if status_holder["used_tools"]:
+                tools_str = ", ".join(status_holder["used_tools"])
+                status_holder["box"].update(label=f"✅ Tool finished - Tools used: {tools_str}", state="complete", expanded=False)
+            else:
+                status_holder["box"].update(label="✅ No tools used", state="complete", expanded=False)
 
     # Save assistant response to history
     st.session_state["message_history"].append({"role": "assistant", "content": ai_message})

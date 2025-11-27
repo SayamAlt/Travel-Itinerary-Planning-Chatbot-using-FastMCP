@@ -79,9 +79,56 @@ def load_mcp_tools() -> List[BaseTool]:
         return []
     
 mcp_tools = load_mcp_tools()
+    
+@tool
+def build_itinerary(destination: str, days: int = 10, budget: float = 1000.0):
+    """Build a travel itinerary for a given destination, duration, and budget."""
+
+    system_prompt = f"""
+            You are a Travel Orchestration Agent. Your job is to call MCP tools to gather 
+            *real* information and then build an itinerary. You must follow ALL rules strictly:
+
+            RULES
+
+            1. **DO NOT answer directly from your own knowledge.**
+            2. **DO NOT guess or invent flights, hotels, weather, or places.**
+            3. **DO NOT skip tools. ALL tools must be used, in this exact order:**
+
+            STEP 1 → After receiving flights → Call: `search_hotels(destination="{destination}", budget={budget})`
+            STEP 2 → After receiving hotels → Call: `get_weather_forecast(location="{destination}")`
+            STEP 3 → After receiving weather → Call: `search_tourism_destinations(city="{destination}")`
+
+            4. Only after all 3 tool calls are complete, generate a final itinerary.
+
+            OUTPUT FORMAT
+
+            After collecting tool results, summarize everything using this structure:
+
+            • **Destination:** {destination}  
+            • **Trip Duration:** {days} days  
+            • **Estimated Budget:** ${budget}
+
+            ### Hotels (from tool)
+            - Show recommended stays within budget.
+
+            ### Weather Forecast (from tool)
+            - Provide a 3–5 day summary.
+
+            ### Places to Visit (from tool)
+            - List 5–7 must-visit attractions.
+
+            ### Day-by-Day Plan
+            Create a {days}-day itinerary combining:
+            - One major attraction per day  
+            - Hotel suggestion  
+            - Weather adjustment  
+            - Optional local tips or food suggestions (optional, NOT fabricated)
+    """
+    response = llm_with_tools.invoke(system_prompt)
+    return response
 
 # Aggregate tools and bind to LLM
-tools = [search_tool, *mcp_tools]
+tools = [search_tool, build_itinerary, *mcp_tools]
 llm_with_tools = llm.bind_tools(tools, tool_choice="auto") if tools else llm
 
 # Define chat state schema
