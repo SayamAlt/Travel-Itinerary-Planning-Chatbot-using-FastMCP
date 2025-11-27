@@ -2,12 +2,27 @@ from fastmcp import FastMCP
 import os, requests
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
+import streamlit as st
 
 load_dotenv()
 
-RAPID_API_KEY = os.getenv("RAPID_API_KEY")
-RAPID_API_HOST = "booking-com.p.rapidapi.com"
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+if "secrets" in st.secrets:
+    RAPID_API_KEY = st.secrets["secrets"]["RAPID_API_KEY"]
+    RAPID_API_HOST = st.secrets["secrets"]["RAPID_API_HOST"]
+    OPENAI_API_KEY = st.secrets["secrets"]["OPENAI_API_KEY"]
+else:
+    RAPID_API_KEY = os.getenv("RAPID_API_KEY")
+    RAPID_API_HOST = "booking-com.p.rapidapi.com"
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+    
+if not OPENAI_API_KEY:
+    raise ValueError("OPENAI_API_KEY environment variable is required.")
+
+if not RAPID_API_KEY:
+    raise ValueError("RAPID_API_KEY environment variable is required.")
+
+if not RAPID_API_HOST:
+    raise ValueError("RAPID_API_HOST environment variable is required.")
 
 mcp = FastMCP("hotel")
 

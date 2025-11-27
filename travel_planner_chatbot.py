@@ -15,6 +15,7 @@ from datetime import datetime
 import geopy.distance
 from geopy.geocoders import Nominatim
 from timezonefinder import TimezoneFinder
+import streamlit as st
 
 load_dotenv()
 
@@ -22,7 +23,13 @@ logger = logging.getLogger("travel_planner_chatbot")
 logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+if "secrets" in st.secrets:
+    OPENAI_API_KEY = st.secrets["secrets"]["OPENAI_API_KEY"]
+else:
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+    
+if not OPENAI_API_KEY:
+    raise ValueError("OPENAI_API_KEY is not set")
 
 SERVERS = {
     "hotel": {

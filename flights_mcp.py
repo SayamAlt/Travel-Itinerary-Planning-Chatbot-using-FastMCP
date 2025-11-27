@@ -2,11 +2,22 @@ from amadeus import Client, ResponseError
 from fastmcp import FastMCP
 from dotenv import load_dotenv
 import os, requests
+import streamlit as st
 
 load_dotenv()
 
-AMADEUS_API_KEY = os.getenv("AMADEUS_API_KEY")
-AMADEUS_API_SECRET = os.getenv("AMADEUS_API_SECRET")
+if "secrets" in st.secrets:
+    AMADEUS_API_KEY = st.secrets["secrets"]["AMADEUS_API_KEY"]
+    AMADEUS_API_SECRET = st.secrets["secrets"]["AMADEUS_API_SECRET"]
+else:
+    AMADEUS_API_KEY = os.getenv("AMADEUS_API_KEY")
+    AMADEUS_API_SECRET = os.getenv("AMADEUS_API_SECRET")
+
+if not AMADEUS_API_KEY:
+    raise ValueError("AMADEUS_API_KEY environment variable is required.")
+
+if not AMADEUS_API_SECRET:
+    raise ValueError("AMADEUS_API_SECRET environment variable is required.")
 
 mcp = FastMCP("flight")
 

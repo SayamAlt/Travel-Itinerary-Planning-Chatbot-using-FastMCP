@@ -2,11 +2,22 @@ from fastmcp import FastMCP
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 import os, requests
+import streamlit as st
 
 load_dotenv()
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
+if "secrets" in st.secrets:
+    OPENAI_API_KEY = st.secrets["secrets"]["OPENAI_API_KEY"]
+    OPENWEATHER_API_KEY = st.secrets["secrets"]["OPENWEATHER_API_KEY"]
+else:
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+    OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
+
+if not OPENAI_API_KEY:
+    raise ValueError("OPENAI_API_KEY environment variable is required.")
+
+if not OPENWEATHER_API_KEY:
+    raise ValueError("OPENWEATHER_API_KEY environment variable is required.")
 
 mcp = FastMCP("weather")
 
