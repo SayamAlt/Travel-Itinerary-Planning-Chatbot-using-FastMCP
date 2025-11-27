@@ -34,8 +34,8 @@ if "chat_threads" not in st.session_state:
 add_thread(st.session_state["thread_id"])
 
 # Create sidebar for thread management
-st.set_page_config(page_title="✈️ Travel Planning Assistant", page_icon="✈️")
-st.title("✈️ Travel Planning Assistant")
+st.set_page_config(page_title="AI Travel Assistant", page_icon="✈️")
+st.title("✈️ Your AI Travel Companion")
 
 # Define a new chat button to reset the chat
 if st.sidebar.button("New Chat"):
